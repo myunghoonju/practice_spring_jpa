@@ -46,6 +46,20 @@ public class MemberJpaRepository {
         em.remove(id);
     }
 
+    @Transactional
+    public List<Member> findByPage(int age, int offset, int limit) {
+        return em.createQuery("select m from Member as m where m.age = :age order by m.username desc")
+                .setParameter("age", age)
+                .setFirstResult(offset) // where to get?
+                .setMaxResults(limit) // how many get?
+                .getResultList();
+    }
 
+    @Transactional
+    public long totalCount(int age) {
+        return em.createQuery("select count(m) from Member as m where m.age = :age", Long.class)
+                .setParameter("age", age)
+                .getSingleResult();
+    }
 
 }
