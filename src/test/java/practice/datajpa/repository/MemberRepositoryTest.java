@@ -216,4 +216,25 @@ class MemberRepositoryTest {
             log.info("team name:: {}", m2.getTeam().getName());
         }
     }
+
+    @Test
+    void customRepoTest() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamA);
+        repository.save(member1);
+        repository.save(member2);
+
+        em.flush();
+        em.clear();
+        List<Member> all2 =  repository.findMemberCustom();
+        for (Member m2 : all2) {
+            log.info("name, age {} {}", m2.getUsername(), m2.getAge());
+            log.info("team class:: {}", m2.getTeam().getClass().toString());
+            log.info("team name:: {}", m2.getTeam().getName());
+        }
+    }
 }
