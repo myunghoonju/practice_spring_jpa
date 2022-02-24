@@ -24,6 +24,7 @@ public class MemberController {
         Page<MemberDto> mappedMembers = members.map(MemberDto::new);
         return mappedMembers;
     }
+/*
 
     @PostConstruct
     public void init() {
@@ -31,4 +32,5 @@ public class MemberController {
             repository.save(new Member("user_" + i));
         }
     }
+*/
 }
