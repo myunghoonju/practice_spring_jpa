@@ -1,6 +1,7 @@
 package practice.datajpa.repository;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -57,7 +58,7 @@ class MemberRepositoryTest {
         teamRepository.save(teamA);
         Member member = new Member("memberA");
         member.setTeam(teamA);
-        Member save = repository.save(member);
+        repository.save(member);
 
         List<MemberDto> dtos = repository.findMemberDto();
 
@@ -70,8 +71,8 @@ class MemberRepositoryTest {
     void paramBindingTest() {
         Member membera = new Member("memberA");
         Member memberb = new Member("memberB");
-        Member savea = repository.save(membera);
-        Member saveb = repository.save(memberb);
+        repository.save(membera);
+        repository.save(memberb);
 
         List<Member> result = repository.findNames(Arrays.asList("memberA", "memberB"));
 
@@ -90,10 +91,10 @@ class MemberRepositoryTest {
         Member member2 = new Member("username2", 60, teamC);
         Member member3 = new Member("username3", 70, teamD);
         Member member4 = new Member("username4", 70, teamD);
-        Member save1 = repository.save(member1);
-        Member save2 = repository.save(member2);
-        Member save3 = repository.save(member3);
-        Member save4 = repository.save(member4);
+        repository.save(member1);
+        repository.save(member2);
+        repository.save(member3);
+        repository.save(member4);
 
         PageRequest pageRequest = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "username"));
 
@@ -148,5 +149,73 @@ class MemberRepositoryTest {
         */
 
         assertThat(resultCnt).isEqualTo(3);
+    }
+
+    @Test
+    @DisplayName("N + 1 problem generated without using @EntityGraph(attributePaths = {\"team\"})")
+    void findMemberWithLazy() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamA);
+        repository.save(member1);
+        repository.save(member2);
+
+        em.flush();
+        em.clear();
+        List<Member> all2 = repository.findAll();
+        for (Member m2 : all2) {
+            log.info("name, age {} {}", m2.getUsername(), m2.getAge());
+            log.info("team class:: {}", m2.getTeam().getClass().toString());
+            log.info("team name:: {}", m2.getTeam().getName());
+        }
+    }
+
+    @Test
+    @DisplayName("solve above")
+    void fetchTest() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamA);
+        repository.save(member1);
+        repository.save(member2);
+
+        em.flush();
+        em.clear();
+        List<Member> all2 =  repository.findMemberFetchJoin();
+        for (Member m2 : all2) {
+            log.info("name, age {} {}", m2.getUsername(), m2.getAge());
+            log.info("team class:: {}", m2.getTeam().getClass().toString());
+            log.info("team name:: {}", m2.getTeam().getName());
+        }
+    }
+
+    @Test
+    void findByUsernameWithEntityGraph() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 10, teamA);
+        repository.save(member1);
+        repository.save(member2);
+
+        em.flush();
+        em.clear();
+        List<Member> members = repository.findByUsername(member1.getUsername());
+
+        for (Member m2 : members) {
+            log.info("name, age {} {}", m2.getUsername(), m2.getAge());
+            log.info("team class:: {}", m2.getTeam().getClass().toString());
+            log.info("team name:: {}", m2.getTeam().getName());
+        }
+
+
     }
 }
