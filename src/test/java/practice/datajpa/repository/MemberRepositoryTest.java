@@ -215,7 +215,5 @@ class MemberRepositoryTest {
             log.info("team class:: {}", m2.getTeam().getClass().toString());
             log.info("team name:: {}", m2.getTeam().getName());
         }
-
-
     }
 }
