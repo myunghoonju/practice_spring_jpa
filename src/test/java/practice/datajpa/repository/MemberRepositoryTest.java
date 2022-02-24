@@ -7,15 +7,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.transaction.annotation.Transactional;
 import practice.datajpa.dto.MemberDto;
 import practice.datajpa.entity.Member;
 import practice.datajpa.entity.Team;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Rollback(value = false)
+@Transactional
 @Slf4j
 @SpringBootTest
 class MemberRepositoryTest {
@@ -24,6 +30,8 @@ class MemberRepositoryTest {
     MemberRepository repository;
     @Autowired
     TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     void save() {
@@ -108,5 +116,37 @@ class MemberRepositoryTest {
         log.info("isFirstPage {}", isFirstPage);
         log.info("isLastPage {}", isLastPage);
         log.info("totalPages {}", totalPages);
+    }
+
+    @Test
+    void bulkUpdate() {
+        Member member1 = new Member("username1", 50, null);
+        Member member2 = new Member("username2", 60, null);
+        Member member3 = new Member("username3", 70, null);
+        Member member4 = new Member("username4", 70, null);
+        Member save1 = repository.save(member1);
+        Member save2 = repository.save(member2);
+        Member save3 = repository.save(member3);
+        Member save4 = repository.save(member4);
+
+        int resultCnt = repository.bulkAgePlus(60);
+
+        // asynchronous persistence
+        List<Member> all = repository.findAll();
+        for (Member m : all) {
+            log.info("name, age {} {}", m.getUsername(), m.getAge());
+        }
+
+        // sync with persistence or  @Modifying(clearAutomatically = true)
+       /*
+        em.flush();
+        em.clear();
+        List<Member> all2 = repository.findAll();
+        for (Member m2 : all2) {
+            log.info("name, age {} {}", m2.getUsername(), m2.getAge());
+        }
+        */
+
+        assertThat(resultCnt).isEqualTo(3);
     }
 }
