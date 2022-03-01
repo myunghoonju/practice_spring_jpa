@@ -6,6 +6,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import practice.datajpa.entity.Member;
@@ -13,7 +14,6 @@ import practice.datajpa.entity.QMember;
 import practice.datajpa.entity.Team;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 
 import static com.querydsl.jpa.JPAExpressions.select;
@@ -24,15 +24,14 @@ import static practice.datajpa.entity.QMember.member;
 @Transactional
 public class QueryDslBasicTest {
 
-    @PersistenceContext
+    @Autowired
     EntityManager em;
 
-    static JPAQueryFactory queryFactory(EntityManager em) {
-        return new JPAQueryFactory(em);
-    }
+    JPAQueryFactory queryFactory;
 
     @BeforeEach
     public void before() {
+        queryFactory = new JPAQueryFactory(em);
         Team teamA = new Team("teamA");
         Team teamB = new Team("teamB");
         em.persist(teamA);
@@ -52,7 +51,7 @@ public class QueryDslBasicTest {
     void subQuery() {
         QMember memberSub = new QMember("memberSub");
 
-        List<Member> memberList = queryFactory(em)
+        List<Member> memberList = queryFactory
                 .selectFrom(member)
                 .where(member.age.eq(
                         select(memberSub.age.max())
@@ -67,7 +66,7 @@ public class QueryDslBasicTest {
     void selectSubQuery() {
         QMember memberSub = new QMember("memberSub");
 
-        List<Tuple> tupleList = queryFactory(em)
+        List<Tuple> tupleList = queryFactory
                 .select(member.username,
                         select(memberSub.age.avg())
                                 .from(memberSub))
@@ -81,7 +80,7 @@ public class QueryDslBasicTest {
 
     @Test
     void basicCase() {
-        List<String> cases = queryFactory(em)
+        List<String> cases = queryFactory
                 .select(member.age
                         .when(10).then("ten")
                         .when(20).then("twenty")
@@ -96,7 +95,7 @@ public class QueryDslBasicTest {
 
     @Test
     void complexCase() {
-        List<String> ages = queryFactory(em)
+        List<String> ages = queryFactory
                 .select(new CaseBuilder()
                         .when(member.age.between(0, 20)).then("0~20")
                         .when(member.age.between(21, 30)).then("21~30")
@@ -111,7 +110,7 @@ public class QueryDslBasicTest {
 
     @Test
     void constant() {
-        List<Tuple> a = queryFactory(em)
+        List<Tuple> a = queryFactory
                 .select(member.username, Expressions.constant("a"))
                 .from(member)
                 .fetch();
@@ -124,7 +123,7 @@ public class QueryDslBasicTest {
 
     @Test
     void concat() {
-        List<String> ages = queryFactory(em)
+        List<String> ages = queryFactory
                 .select(member.username.concat("_").concat(member.age.stringValue()))
                 .from(member)
                 .where(member.username.eq("member1"))
