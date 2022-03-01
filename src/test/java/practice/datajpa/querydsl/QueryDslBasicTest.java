@@ -13,9 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import practice.datajpa.dto.MemberSearchCondition;
+import practice.datajpa.dto.MemberTeamDto;
 import practice.datajpa.entity.Member;
 import practice.datajpa.entity.QMember;
 import practice.datajpa.entity.Team;
+import practice.datajpa.repository.MemberJpaRepository;
 
 import javax.persistence.EntityManager;
 import java.util.List;
@@ -30,8 +33,9 @@ public class QueryDslBasicTest {
 
     @Autowired
     EntityManager em;
-
     JPAQueryFactory queryFactory;
+    @Autowired
+    MemberJpaRepository memberJpaRepository;
 
     @BeforeEach
     public void before() {
@@ -217,5 +221,28 @@ public class QueryDslBasicTest {
                 .execute();
 
         System.out.println(count);
+    }
+
+    @Test
+    void sqlFunction() {
+        String s = queryFactory.select(member.username)
+                .from(member)
+                //.where(member.username.eq(Expressions.stringTemplate("function('lower', {0})", member.username)))
+                .where(member.username.eq(member.username.lower()))
+                .fetchFirst();
+    }
+
+    @Test
+    void search() {
+        MemberSearchCondition condition = new MemberSearchCondition();
+        condition.setAgeGoe(31);
+        condition.setAgeLoe(45);
+        condition.setTeamname("teamB");
+
+        List<MemberTeamDto> memberTeamDtos = memberJpaRepository.searchByBuilder(condition);
+
+        for (MemberTeamDto dto : memberTeamDtos) {
+            System.out.println(dto.getUsername());
+        }
     }
 }
