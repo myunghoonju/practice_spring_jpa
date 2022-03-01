@@ -196,4 +196,26 @@ public class QueryDslBasicTest {
     private BooleanExpression allEq(String userNameCond, Integer ageCond) {
         return usernameEq(userNameCond).and(ageEq(ageCond));
     }
+
+    @Test
+    void bulkUpdate() {
+        long count = queryFactory
+                .update(member)
+                .set(member.username, "비회원")
+                .where(member.age.lt(20))
+                .execute();
+
+        System.out.println(count);
+    }
+
+    @Test
+    void bulkAdd() {
+        long count = queryFactory
+                .update(member)
+                .set(member.age, member.age.add(1))
+                .where(member.age.lt(20))
+                .execute();
+
+        System.out.println(count);
+    }
 }
