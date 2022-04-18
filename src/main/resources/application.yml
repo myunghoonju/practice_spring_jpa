@@ -25,3 +25,7 @@ spring:
 logging:
   level:
     org.hibernate.SQL: debug
+
+test:
+  name:
+    other: "{1: 'Catch-22', 2: '1984', 3: 'Pride and Prejudice'}"
