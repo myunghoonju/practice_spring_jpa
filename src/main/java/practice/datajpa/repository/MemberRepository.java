@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.query.Param;
 import practice.datajpa.dto.MemberDto;
 import practice.datajpa.entity.Member;
+import practice.datajpa.entity.Team;
 
 import javax.persistence.LockModeType;
 import javax.persistence.QueryHint;
@@ -65,4 +66,10 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Member findLockByUsername(String username);
+
+    @Query("select distinct m from Member as m join fetch m.team")
+    List<Member> findJoin();
+
+    @Query("select t from Team as t join fetch t.memberList")
+    List<Team> collectionFindJoin();
 }

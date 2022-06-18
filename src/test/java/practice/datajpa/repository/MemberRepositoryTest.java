@@ -237,4 +237,53 @@ class MemberRepositoryTest {
             log.info("team name:: {}", m2.getTeam().getName());
         }
     }
+
+    @Test
+    void distinctTest() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 20, teamA);
+        Member member3 = new Member("member3", 10, teamB);
+        repository.save(member1);
+        repository.save(member2);
+        repository.save(member3);
+
+        em.flush();
+        em.clear();
+        List<Member> all =  repository.findJoin();
+        log.info("size - {}", all.size());
+        for (Member m2 : all) {
+            log.info("name, getName {}", m2.getId());
+            log.info("getMemberList class:: {}", m2.getTeam().getName());
+        }
+    }
+
+    @Test
+    @DisplayName("1 to many join creates duplicated result. so use distinct")
+    void oneToManyTest() {
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+        Member member1 = new Member("member1", 10, teamA);
+        Member member2 = new Member("member2", 20, teamA);
+        Member member3 = new Member("member3", 10, teamB);
+        repository.save(member1);
+        repository.save(member2);
+        repository.save(member3);
+
+        em.flush();
+        em.clear();
+        List<Team> all =  repository.collectionFindJoin();
+        log.info("size - {}", all.size());
+        for (Team m2 : all) {
+            log.info("name, getName {}", m2.getId());
+            for (Member m : m2.getMemberList()) {
+                log.info("  {}", m.getUsername());
+            }
+        }
+    }
 }
