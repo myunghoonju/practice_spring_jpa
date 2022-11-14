@@ -4,17 +4,12 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 import practice.datajpa.dto.MemberSearchCondition;
 import practice.datajpa.dto.MemberTeamDto;
 import practice.datajpa.dto.QMemberTeamDto;
 import practice.datajpa.entity.Member;
-import practice.datajpa.entity.QMember;
-import practice.datajpa.entity.QTeam;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,9 +20,8 @@ import static practice.datajpa.entity.QTeam.team;
 @Repository
 public class MemberJpaRepository {
 
-    @PersistenceContext
-    private EntityManager em;
-    JPAQueryFactory queryFactory;
+    private final EntityManager em;
+    private final JPAQueryFactory queryFactory;
 
     public MemberJpaRepository(EntityManager em) {
         this.em = em;
@@ -48,6 +42,13 @@ public class MemberJpaRepository {
     @Transactional
     public Optional<Member> findById(Long id) {
         return Optional.ofNullable(em.find(Member.class, id));
+    }
+
+    @Transactional
+    public List<Member> findbyUsername_querydsl(String username) {
+        return queryFactory.selectFrom(member)
+                .where(member.username.eq(username))
+                .fetch();
     }
 
     @Transactional

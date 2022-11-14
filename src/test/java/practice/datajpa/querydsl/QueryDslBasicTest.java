@@ -3,6 +3,7 @@ package practice.datajpa.querydsl;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+import practice.datajpa.dto.MemberDto;
 import practice.datajpa.dto.MemberSearchCondition;
 import practice.datajpa.dto.MemberTeamDto;
 import practice.datajpa.entity.Member;
@@ -243,6 +245,45 @@ public class QueryDslBasicTest {
 
         for (MemberTeamDto dto : memberTeamDtos) {
             System.out.println(dto.getUsername());
+        }
+    }
+
+    //property based:: with getter, setter
+    @Test
+    public void findDtoBySetter() throws Exception {
+        List<MemberDto> result = queryFactory.select(Projections.bean(MemberDto.class,
+                        member.username, member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("member:: " + memberDto);
+        }
+    }
+
+    //field based:: without getter, setter
+    @Test
+    public void findDtoByFields() throws Exception {
+        List<MemberDto> result = queryFactory.select(Projections.fields(MemberDto.class,
+                        member.username, member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("member:: " + memberDto);
+        }
+    }
+
+    //constructor based
+    @Test
+    public void findDtoByConstructor() throws Exception {
+        List<MemberDto> result = queryFactory.select(Projections.constructor(MemberDto.class,
+                        member.id, member.username, member.team.name))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("member:: " + memberDto);
         }
     }
 }

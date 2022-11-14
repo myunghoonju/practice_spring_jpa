@@ -24,8 +24,10 @@ class MemberJpaRepositoryTest {
         Member member = new Member("memberA");
         Member save = repository.save(member);
         Member member1 = repository.find(save.getId());
+        List<Member> members = repository.findbyUsername_querydsl(save.getUsername());
 
         assertThat(save.getUsername()).isEqualTo(member1.getUsername());
+        assertThat(save.getUsername()).isEqualTo(members.get(0).getUsername());
     }
 
     @Test

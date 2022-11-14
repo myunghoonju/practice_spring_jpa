@@ -1,9 +1,11 @@
 package practice.datajpa.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import practice.datajpa.entity.Member;
 
 @Data
+@NoArgsConstructor
 public class MemberDto {
 
     private Long id;
