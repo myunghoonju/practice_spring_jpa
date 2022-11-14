@@ -1,6 +1,8 @@
 package practice.datajpa.repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -117,4 +119,33 @@ public class MemberJpaRepository {
                 .fetch();
     }
 
+    public List<MemberTeamDto> search_with_params(MemberSearchCondition cond) {
+        return queryFactory
+                .select(new QMemberTeamDto(
+                        member.id.as("memberId"),
+                        member.username,
+                        member.age,
+                        team.id.as("teamId"),
+                        team.name.as("teamname")))
+                .from(member)
+                .leftJoin(member.team, team)
+                .where(userNameEq(cond.getUsername()),
+                        teamNameEq(cond.getTeamname()),
+                        ageGoe(cond.getAgeGoe()),
+                        ageLoe(cond.getAgeLoe()))
+                .fetch();
+    }
+
+    private BooleanExpression userNameEq(String username) {
+        return hasText(username) ? member.username.eq(username) : null;
+    }
+    private BooleanExpression teamNameEq(String teamName) {
+        return hasText(teamName) ? team.name.eq(teamName) : null;
+    }
+    private BooleanExpression ageGoe(Integer ageGoe) {
+        return ageGoe != null ? member.age.goe(ageGoe) : null;
+    }
+    private BooleanExpression ageLoe(Integer ageLoe) {
+        return ageLoe != null ? member.age.loe(ageLoe) : null;
+    }
 }

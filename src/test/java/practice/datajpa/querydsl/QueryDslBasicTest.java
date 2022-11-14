@@ -234,20 +234,6 @@ public class QueryDslBasicTest {
                 .fetchFirst();
     }
 
-    @Test
-    void search() {
-        MemberSearchCondition condition = new MemberSearchCondition();
-        condition.setAgeGoe(31);
-        condition.setAgeLoe(45);
-        condition.setTeamname("teamB");
-
-        List<MemberTeamDto> memberTeamDtos = memberJpaRepository.searchByBuilder(condition);
-
-        for (MemberTeamDto dto : memberTeamDtos) {
-            System.out.println(dto.getUsername());
-        }
-    }
-
     //property based:: with getter, setter
     @Test
     public void findDtoBySetter() throws Exception {
@@ -284,6 +270,34 @@ public class QueryDslBasicTest {
 
         for (MemberDto memberDto : result) {
             System.out.println("member:: " + memberDto);
+        }
+    }
+
+    @Test
+    void search() {
+        MemberSearchCondition condition = new MemberSearchCondition();
+        condition.setAgeGoe(31);
+        condition.setAgeLoe(45);
+        condition.setTeamname("teamB");
+
+        List<MemberTeamDto> memberTeamDtos = memberJpaRepository.searchByBuilder(condition);
+
+        for (MemberTeamDto dto : memberTeamDtos) {
+            System.out.println(dto.getUsername());
+        }
+    }
+
+    @Test
+    void search_where_test() {
+        MemberSearchCondition condition = new MemberSearchCondition();
+        condition.setAgeGoe(31);
+        condition.setAgeLoe(45);
+        condition.setTeamname("teamB");
+
+        List<MemberTeamDto> memberTeamDtos = memberJpaRepository.search_with_params(condition);
+
+        for (MemberTeamDto dto : memberTeamDtos) {
+            System.out.println(dto.getUsername());
         }
     }
 }
