@@ -1,7 +1,8 @@
 package practice.datajpa.repository;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.Projections;
+import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import org.springframework.stereotype.Repository;
@@ -147,5 +148,15 @@ public class MemberJpaRepository {
     }
     private BooleanExpression ageLoe(Integer ageLoe) {
         return ageLoe != null ? member.age.loe(ageLoe) : null;
+    }
+
+    private QBean<MemberTeamDto> defaultColumn() {
+        return Projections.fields(
+                MemberTeamDto.class,
+                member.id.as("memberId"),
+                member.username,
+                member.age,
+                team.id.as("teamId"),
+                team.name.as("teamname"));
     }
 }
