@@ -10,10 +10,10 @@ import practice.datajpa.dto.MemberDto;
 import practice.datajpa.dto.MemberSearchCondition;
 import practice.datajpa.dto.MemberTeamDto;
 import practice.datajpa.entity.Member;
+import practice.datajpa.repository.CompositeRepository;
 import practice.datajpa.repository.MemberJpaRepository;
 import practice.datajpa.repository.MemberRepository;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -22,6 +22,7 @@ public class MemberController {
 
     private final MemberRepository repository;
     private final MemberJpaRepository jpaRepository;
+    private final CompositeRepository compositeRepository;
 
     @GetMapping("/members")
     public Page<MemberDto> list(@PageableDefault(size = 5) Pageable pageable) {
@@ -33,5 +34,10 @@ public class MemberController {
     @GetMapping("/v1/members")
     public List<MemberTeamDto> searchMemberV1(MemberSearchCondition cond) {
         return jpaRepository.search_with_params(cond);
+    }
+
+    @GetMapping("/composite")
+    public String getComposite() {
+        return compositeRepository.findUniqueAuthor("C");
     }
 }
