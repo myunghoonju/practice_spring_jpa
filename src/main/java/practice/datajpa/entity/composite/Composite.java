@@ -1,6 +1,7 @@
 package practice.datajpa.entity.composite;
 
 import lombok.Getter;
+import practice.datajpa.Converter;
 
 import javax.persistence.*;
 
@@ -14,5 +15,9 @@ public class Composite {
             @AttributeOverride(name = "company", column = @Column(name = "소속사"))
     })*/
     private CompositeId id;
+
     private String gender;
+
+    @Convert(converter = Converter.PriorityConverter.class)
+    private Priority priority;
 }
